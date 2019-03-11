@@ -12,5 +12,8 @@
     "url": "https://github.com/OOualiken/node_exercice.git "
   },
   "author": "oualiken",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }

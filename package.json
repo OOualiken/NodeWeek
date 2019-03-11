@@ -1,0 +1,16 @@
+{
+  "name": "hello-app",
+  "version": "1.0.0",
+  "description": "first exercice",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "server.js"
+  },
+  "repository": {
+    "type": "node_exercice",
+    "url": "https://github.com/OOualiken/node_exercice.git "
+  },
+  "author": "oualiken",
+  "license": "ISC"
+}

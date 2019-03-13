@@ -1,49 +1,93 @@
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 var express = require('express');
-const fs = require('fs');
+var bodyParser = require('body-parser');
+var fs = require('fs')
 
 var app = express();
-var port = process.env.PORT || 3000;
-app.use(express.json());
+app.use(bodyParser.json());
 
-console.log('Hello Word');
+var port = process.env.PORT || 3000;
+
+
+app.post('/chat', async (req, res) => {
+
+    try {
+
+        // Connection URL
+        const url = 'mongodb://localhost:27017/chat-bot';
+        // Database Name
+        const dbName = 'chat-bot';
+        const client = new MongoClient(url);
+        var msg = req.body.msg;
+        await client.connect();
+
+        const db = client.db(dbName);
+
+        const col = db.collection('messages');
+
+        if(msg.split(" = ")[0] == "demain"){
+            col.insertMany([{from: 'user', msg: msg}, {from: 'bot', msg: "demain = Mercredi"}]);
+            //col.insertMany();
+            console.log("Demain : Mercredi");
+        }
+
+        console.log(await col.find().toArray());
+
+        client.close();
+
+    } catch (err) {
+        //this will eventually be handled by your error handling middleware
+        console.log(err.stack);
+    }
+});
+
+app.get('/messages/all', async (req, res) => {
+    try {
+
+        // Connection URL
+        const url = 'mongodb://localhost:27017/chat-bot';
+        // Database Name
+        const dbName = 'chat-bot';
+        const client = new MongoClient(url);
+        var msg = req.body.msg;
+        await client.connect();
+        const db = client.db(dbName);
+        const col = db.collection('messages');
+        console.log(await col.find().toArray());
+        client.close();
+
+    } catch (err) {
+        //this will eventually be handled by your error handling middleware
+        console.log(err.stack);
+    }
+});
+
+app.delete('/messages/last', async (req, res) => {
+    try {
+
+        // Connection URL
+        const url = 'mongodb://localhost:27017/chat-bot';
+        // Database Name
+        const dbName = 'chat-bot';
+        const client = new MongoClient(url);
+        var msg = req.body.msg;
+        await client.connect();
+        const db = client.db(dbName);
+        const col = db.collection('messages');
+        var arr = await col.find().toArray();
+        var idDelete = arr[arr.length-1]._id;
+        col.deleteOne({_id: idDelete});
+        console.log(await col.find().toArray());
+        res.send("Suppresion effectué");
+        client.close();
+
+    } catch (err) {
+        //this will eventually be handled by your error handling middleware
+        console.log(err.stack);
+    }
+})
 
 app.listen(port, () => {
-  console.log("Listening on port 3000...");
+    console.log("Server is up and listnening on port " + port + "...");
 })
-
-app.get("/hello", (req, res) => {
-  res.send("Hello World\n");
-})
-
-app.post('/chat', (req, res) => {
-  switch(req.body.msg) {
-    case "ville":
-      res.send("Nous sommes à Paris\n");
-      break;
-    case "météo":
-      res.send("Il fait beau\n");
-      break;
-    case "demain":
-      let rawdata = fs.readFileSync('response.json');
-      let json = JSON.parse(rawdata);
-      console.log(json.day);
-      if(json.day == null) {
-        res.send("Je ne connais pas demain…\n");
-      }
-      else {
-        res.send(json.day);
-      }
-      break;
-    case "demain = Mercredi":
-      let day = {
-          day: 'Mercredi',
-      };
-      let data = JSON.stringify(day);
-      fs.writeFileSync('response.json', data);
-      res.send("Mercredi");
-      break;
-    default:
-      res.send("Réponse par défaut\n");
-      break;
-  }
-});
